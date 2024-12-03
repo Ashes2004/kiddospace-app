@@ -100,8 +100,8 @@ export const followUser = async (req, res) => {
 
   try {
     // Find both users
-    const user = await User.findOne({email:userEmail});
-    const userToFollow = await User.findOne({email: followEmail});
+    const user = await User.findOne({ email: { $regex: new RegExp('^' + userEmail + '$', 'i') } });
+    const userToFollow = await User.findOne({ email: { $regex: new RegExp('^' + followEmail + '$', 'i') } });
 
     if (!user || !userToFollow) {
       return res.status(404).json({ error: 'User not found.' });
