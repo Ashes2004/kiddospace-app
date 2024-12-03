@@ -27,7 +27,7 @@ export const getUserBymail = async (req, res) => {
   const { email } = req.body;
   try {
    
-    const user = await User.findOne({ email }).populate('posts');
+    const user = await User.findOne({ email }).populate('posts').populate('following').populate('followers');
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -103,18 +103,15 @@ export const followUser = async (req, res) => {
       return res.status(404).json({ error: 'User not found.' });
     }
 
-    // Check if already following
-    if (user.following.includes(followEmail)) {
+    if (user.following.includes(userToFollow._id)) {
       return res.status(400).json({ error: 'You are already following this user.' });
     }
 
-    // Add `followId` to the user's `following` array
-    user.following.push(followEmail);
+    // Add userToFollow's ObjectId to the user's following array
+    user.following.push(userToFollow._id);
 
-    // Add `userId` to the `followId` user's `followers` array
-    userToFollow.followers.push(userEmail);
-
-    // Save both user documents
+    // Add user's ObjectId to the userToFollow's followers array
+    userToFollow.followers.push(user._id);
     await user.save();
     await userToFollow.save();
 

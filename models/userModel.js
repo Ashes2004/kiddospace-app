@@ -7,8 +7,8 @@ const userSchema = new mongoose.Schema(
     bio: { type: String, default: '' },
     profilePicture: { type: String, default: '' },
     totalPosts: { type: Number, default: 0 },
-    followers: [{ type:String }],
-    following: [{ type:String }],
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
   },
   { timestamps: true }
