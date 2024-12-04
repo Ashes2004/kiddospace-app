@@ -127,3 +127,41 @@ export const followUser = async (req, res) => {
     return res.status(500).json({ error: 'Something went wrong.', details: error.message });
   }
 };
+
+export const unfollowUser = async (req, res) => {
+  const { userEmail, unfollowEmail } = req.body;
+
+  if (!userEmail || !unfollowEmail) {
+    return res.status(400).json({ error: 'Both userEmail and unfollowEmail are required.' });
+  }
+
+  try {
+ 
+    const user = await User.findOne({ email: { $regex: new RegExp('^' + userEmail + '$', 'i') } });
+    const userToUnfollow = await User.findOne({ email: { $regex: new RegExp('^' + unfollowEmail + '$', 'i') } });
+
+    if (!user || !userToUnfollow) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    if (!user.following.includes(userToUnfollow._id)) {
+      return res.status(400).json({ error: 'You are not following this user.' });
+    }
+
+   
+    user.following = user.following.filter(followingId => !followingId.equals(userToUnfollow._id));
+
+  
+    userToUnfollow.followers = userToUnfollow.followers.filter(followerId => !followerId.equals(user._id));
+
+    await user.save();
+    await userToUnfollow.save();
+
+    return res.status(200).json({
+      message: `You have unfollowed ${userToUnfollow.name || 'the user'}.`,
+      user,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: 'Something went wrong.', details: error.message });
+  }
+};

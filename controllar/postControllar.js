@@ -55,11 +55,11 @@ export const createPost = async (req, res) => {
     // Find the user and add the new post to their posts array
     
 
-    userToUpdate.posts.push(post._id);  // Add the new post's ID to the user's posts array
-    userToUpdate.totalPosts += 1;  // Optionally, increment the user's totalPosts count
-    await userToUpdate.save();  // Save the updated user document
+    userToUpdate.posts.push(post._id);  
+    userToUpdate.totalPosts += 1; 
+    await userToUpdate.save();  
 
-    res.status(201).json(post);  // Send the post as the response
+    res.status(201).json(post); 
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -84,7 +84,7 @@ export const updatePost = async (req, res) => {
   }
 };
 
-// Like a post
+
 export const likePost = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -95,7 +95,7 @@ export const likePost = async (req, res) => {
       return res.status(404).json({ message: 'Post not found' });
     }
 
-    // Check if the user has already liked the post
+    
     if (post.likes.includes(userId)) {
       return res.status(400).json({ message: 'User already liked this post' });
     }
