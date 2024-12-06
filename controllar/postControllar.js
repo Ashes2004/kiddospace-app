@@ -5,9 +5,8 @@ import User from "../models/userModel.js";
 export const getAllPosts = async (req, res) => {
   try {
     const posts = await Post.aggregate([
-      { $sample: { size: await Post.countDocuments() } } 
-    ])
-      .exec();
+      { $sort: { createdAt: -1 } }
+    ]).exec();
 
     
     const populatedPosts = await Post.populate(posts, [
@@ -116,6 +115,37 @@ export const likePost = async (req, res) => {
   }
 };
 
+
+export const unlikePost = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { userId } = req.body;
+
+   
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+   
+    const userIndex = post.likes.indexOf(userId);
+    if (userIndex === -1) {
+      return res.status(400).json({ message: 'User has not liked this post' });
+    }
+
+   
+    post.likes.splice(userIndex, 1);
+
+  
+    await post.save();
+
+    res.status(200).json({ message: 'Post unliked successfully', post });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
 // Comment on a post
 export const addComment = async (req, res) => {
   try {
@@ -136,6 +166,36 @@ export const addComment = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const deleteComment = async (req, res) => {
+  try {
+    const { postId, commentId } = req.params;
+
+   
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+   
+    const commentIndex = post.comments.findIndex(comment => comment._id.toString() === commentId);
+    if (commentIndex === -1) {
+      return res.status(404).json({ message: 'Comment not found' });
+    }
+
+    
+    post.comments.splice(commentIndex, 1);
+
+   
+    await post.save();
+
+    res.status(200).json({ message: 'Comment deleted successfully', post });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
 
 // Delete a post
 export const deletePost = async (req, res) => {
