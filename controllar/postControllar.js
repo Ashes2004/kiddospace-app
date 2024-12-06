@@ -4,15 +4,23 @@ import User from "../models/userModel.js";
 // Get all posts
 export const getAllPosts = async (req, res) => {
   try {
-    const posts = await Post.find()
-      .populate('User')
-      .populate('comments.user')
+    const posts = await Post.aggregate([
+      { $sample: { size: await Post.countDocuments() } } 
+    ])
       .exec();
-    res.status(200).json(posts);
+
+    
+    const populatedPosts = await Post.populate(posts, [
+      { path: 'User' },
+      { path: 'comments.user' }
+    ]);
+
+    res.status(200).json(populatedPosts);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 export const getPostById = async (req, res) => {
   try {
