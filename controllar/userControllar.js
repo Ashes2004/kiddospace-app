@@ -65,7 +65,7 @@ export const updateUser = async (req, res) => {
 
   try {
     // Find user by email
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: { $regex: new RegExp('^' + email + '$', 'i') } });
 
     // Check if the user exists
     if (!user) {
