@@ -1,6 +1,6 @@
 import User from "../models/userModel.js";
 
-// Get all users
+
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
