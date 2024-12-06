@@ -11,7 +11,9 @@ export const getAllPosts = async (req, res) => {
     
     const populatedPosts = await Post.populate(posts, [
       { path: 'User' },
+      {path:'likes.user'},
       { path: 'comments.user' }
+       
     ]);
 
     res.status(200).json(populatedPosts);
@@ -26,6 +28,7 @@ export const getPostById = async (req, res) => {
     const postId = req.params.id;
     const post = await Post.findById(postId)
       .populate('User') 
+      .populate('likes.user')
       .populate('comments.user'); 
     if (!post) {
       return res.status(404).json({ message: 'Post not found' });
@@ -102,41 +105,36 @@ export const likePost = async (req, res) => {
       return res.status(404).json({ message: 'Post not found' });
     }
 
-    
-    if (post.likes.includes(userId)) {
+    const userAlreadyLiked = post.likes.some(like => like.user.toString() === userId);
+    if (userAlreadyLiked) {
       return res.status(400).json({ message: 'User already liked this post' });
     }
 
-    post.likes.push(userId);
+    post.likes.push({ user: userId });
     await post.save();
+
     res.status(200).json(post);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-
 export const unlikePost = async (req, res) => {
   try {
     const { postId } = req.params;
     const { userId } = req.body;
 
-   
     const post = await Post.findById(postId);
     if (!post) {
       return res.status(404).json({ message: 'Post not found' });
     }
 
-   
-    const userIndex = post.likes.indexOf(userId);
-    if (userIndex === -1) {
+    const likeIndex = post.likes.findIndex(like => like.user.toString() === userId);
+    if (likeIndex === -1) {
       return res.status(400).json({ message: 'User has not liked this post' });
     }
 
-   
-    post.likes.splice(userIndex, 1);
-
-  
+    post.likes.splice(likeIndex, 1);
     await post.save();
 
     res.status(200).json({ message: 'Post unliked successfully', post });
