@@ -50,7 +50,7 @@ export const createPost = async (req, res) => {
     const userToUpdate = await User.findOne({ email: { $regex: new RegExp('^' + email + '$', 'i') } });
     if (!userToUpdate) {
       return res.status(404).json({ message: 'User not found' });
-    }ix 
+    }
 
 
     const ID = userToUpdate._id;
