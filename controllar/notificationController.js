@@ -19,7 +19,8 @@ export const createNotification = async (req, res) => {
 export const getAllNotifications = async (req, res) => {
     try {
         const notifications = await Notification.find()
-            .populate('user') 
+            .populate('sentUser') 
+            .populate('receiveUser') 
             .sort({ createdAt: -1 }); 
 
         res.status(200).json({ success: true, data: notifications });
