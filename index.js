@@ -20,7 +20,7 @@ app.use('/api/post', postRoutes);
 app.use('/api/notification',notificationRoutes );
 
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 8000;
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });
